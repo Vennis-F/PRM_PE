@@ -10,9 +10,7 @@ import baseURL from "../../assets/common/baseUrl";
 
 import AuthGlobal from "../../Context/store/AuthGlobal";
 import { logoutUser } from "../../Context/actions/Auth.actions";
-import { useEffect } from "react/cjs/react.development";
 import EasyButton from "../../Shared/StyledComponents/EasyButton";
-
 const UserProfile = (props) => {
   const context = useContext(AuthGlobal);
   const [userProfile, setUserProfile] = useState();
@@ -44,7 +42,7 @@ const UserProfile = (props) => {
           const data = x.data;
           console.log(data);
           const userOrders = data.filter(
-            (order) => order.user._id === context.stateUser.user.userId
+            (order) => order.user?._id === context.stateUser.user.userId
           );
           setOrders(userOrders);
         })

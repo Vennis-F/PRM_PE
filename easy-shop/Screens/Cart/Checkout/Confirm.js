@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Dimensions, ScrollView, Button } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  Button,
+  Alert,
+} from "react-native";
 import { Text, Left, Right, ListItem, Thumbnail, Body } from "native-base";
 import { connect } from "react-redux";
 import * as actions from "../../../Redux/Actions/cartActions";
@@ -10,9 +17,15 @@ import baseURL from "../../../assets/common/baseUrl";
 import EasyButton from "../../../Shared/StyledComponents/EasyButton";
 
 var { width, height } = Dimensions.get("window");
+import {
+  CardForm,
+  StripeProvider,
+  confirmPayment,
+} from "@stripe/stripe-react-native";
 
 const Confirm = (props) => {
   const finalOrder = props.route.params;
+  const selected = finalOrder?.selected;
 
   // Add this
   const [productUpdate, setProductUpdate] = useState();
@@ -72,6 +85,38 @@ const Confirm = (props) => {
       });
   };
 
+  //stripe
+  const showMessags = () => {
+    Toast.show({
+      topOffset: 60,
+      type: "success",
+      text1: "Payment success",
+      text2: "",
+    });
+    setTimeout(() => {}, 10000);
+  };
+
+  const fetchPaymentClientSecret = async () => {
+    const response = await axios.post(`${baseURL}orders`, {});
+    const { clientSecret } = await response.json();
+    return clientSecret;
+  };
+
+  const buy = async () => {
+    const clientSecret = "await fetchPaymentClientSecret()";
+    const { error, paymentIntent } = await confirmPayment(clientSecret, {
+      paymentMethodType: "Card",
+    });
+
+    if (error) {
+      showMessags();
+      confirmOrder();
+    } else if (paymentIntent) {
+      showMessags();
+      confirmOrder();
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.titleContainer}>
@@ -111,11 +156,28 @@ const Confirm = (props) => {
             )}
           </View>
         ) : null}
-        <View style={{ alignItems: "center", margin: 20 }}>
-          <EasyButton large third onPress={confirmOrder}>
-            <Text style={{ color: "white" }}>Place order</Text>
-          </EasyButton>
-        </View>
+        {selected != 2 ? (
+          <View style={{ alignItems: "center", margin: 20 }}>
+            <EasyButton large third onPress={confirmOrder}>
+              <Text style={{ color: "white" }}>Place order</Text>
+            </EasyButton>
+          </View>
+        ) : (
+          <StripeProvider publishableKey="pk_test_51L27CLL5vXq2N6I1XbXkLZB3FrpEmOowufJ0NAgsWIEYRmQ6aWC5D6t4lIZNaZmg4MPXS2Y2LLIQzDVNOmGXul1t00v3uZt4RU">
+            <CardForm
+              style={{
+                width: "90%",
+                height: 200,
+                marginVertical: 30,
+              }}
+            />
+            <View style={{ alignItems: "center", margin: 20 }}>
+              <EasyButton large third onPress={buy}>
+                <Text style={{ color: "white" }}>Place order</Text>
+              </EasyButton>
+            </View>
+          </StripeProvider>
+        )}
       </View>
     </ScrollView>
   );

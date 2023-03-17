@@ -37,7 +37,7 @@ const Register = (props) => {
             topOffset: 60,
             type: "success",
             text1: "Registration Succeeded",
-            text2: "Please Login into your account",
+            text2: "Please verify your registration in gmail",
           });
           setTimeout(() => {
             props.navigation.navigate("Login");

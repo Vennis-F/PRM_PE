@@ -18,15 +18,12 @@ import EasyButton from "../../../Shared/StyledComponents/EasyButton";
 
 const methods = [
   { name: "Cash on Delivery", value: 1 },
-  { name: "Bank Transfer", value: 2 },
-  { name: "Card Payment", value: 3 },
+  { name: "Card Payment", value: 2 },
 ];
 
 const paymentCards = [
-  { name: "Wallet", value: 1 },
-  { name: "Visa", value: 2 },
-  { name: "MasterCard", value: 3 },
-  { name: "Other", value: 4 },
+  { name: "Visa", value: 1 },
+  { name: "MasterCard", value: 2 },
 ];
 
 const Payment = (props) => {
@@ -54,7 +51,7 @@ const Payment = (props) => {
             </ListItem>
           );
         })}
-        {selected == 3 ? (
+        {selected == 2 ? (
           <Picker
             mode="dropdown"
             iosIcon={<Icon name={"arrow-down"} />}
@@ -73,7 +70,9 @@ const Payment = (props) => {
           <EasyButton
             large
             third
-            onPress={() => props.navigation.navigate("Confirm", { order })}
+            onPress={() =>
+              props.navigation.navigate("Confirm", { order, selected })
+            }
           >
             <Text style={{ color: "white" }}>Confirm</Text>
           </EasyButton>

@@ -37,7 +37,7 @@ const ProductContainer = (props) => {
 
       // Products
       axios
-        .get(`${baseURL}products`)
+        .get(`${baseUrl}products`)
         .then((res) => {
           setProducts(res.data);
           setProductsFiltered(res.data);
@@ -51,12 +51,12 @@ const ProductContainer = (props) => {
 
       // Categories
       axios
-        .get(`${baseURL}categories`)
+        .get(`${baseUrl}categories`)
         .then((res) => {
           setCategories(res.data);
         })
         .catch((error) => {
-          console.log("Api call error");
+          console.log("Api call error", error);
         });
 
       return () => {

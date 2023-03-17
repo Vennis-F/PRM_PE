@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { verifyAccount } = require('../emails/account');
 
 router.get(`/`, async (req, res) => {
     const userList = await User.find().select('-passwordHash');
@@ -79,7 +80,7 @@ router.put('/:id', async (req, res) => {
 router.post('/login', async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
     const secret = process.env.secret;
-    if (!user) {
+    if (!user || !user?.isActive) {
         return res.status(400).send('The user not found');
     }
 
@@ -111,12 +112,46 @@ router.post('/register', async (req, res) => {
         zip: req.body.zip,
         city: req.body.city,
         country: req.body.country,
+        isActive: false,
     });
     user = await user.save();
 
     if (!user) return res.status(400).send('the user cannot be created!');
 
+    //Send email verify
+    const token = jwt.sign(
+        {
+            userId: user.id,
+            isAdmin: user.isAdmin,
+        },
+        process.env.secret,
+        { expiresIn: '1d' }
+    );
+    const url = `http://localhost:3000/api/v1/users/verify-account/${token}`;
+    verifyAccount(user.email, url);
+
     res.send(user);
+});
+
+router.get('/verify-account/:token', async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const decoded = jwt.verify(token, process.env.secret);
+        await User.findByIdAndUpdate(
+            decoded.userId,
+            {
+                isActive: true,
+            },
+            { new: true }
+        );
+        console.log('[VERIFY ACCOUNT SUCCESSFUL]', decoded);
+        res.send({ message: 'The account has been activated' });
+    } catch (err) {
+        res.status(400).send({
+            error: error.message,
+        });
+    }
 });
 
 router.delete('/:id', (req, res) => {
@@ -146,6 +181,39 @@ router.get(`/get/count`, async (req, res) => {
     res.send({
         userCount: userCount,
     });
+});
+
+router.post('/register', async (req, res) => {
+    let user = new User({
+        name: req.body.name,
+        email: req.body.email,
+        passwordHash: bcrypt.hashSync(req.body.password, 10),
+        phone: req.body.phone,
+        isAdmin: req.body.isAdmin,
+        street: req.body.street,
+        apartment: req.body.apartment,
+        zip: req.body.zip,
+        city: req.body.city,
+        country: req.body.country,
+        isActive: false,
+    });
+    user = await user.save();
+
+    if (!user) return res.status(400).send('the user cannot be created!');
+
+    //Send email verify
+    const token = jwt.sign(
+        {
+            userId: user.id,
+            isAdmin: user.isAdmin,
+        },
+        secret,
+        { expiresIn: '1d' }
+    );
+    const url = `http://localhost:5000/verify-account/${token}`;
+    verifyAccount(user.email, url);
+
+    res.send(user);
 });
 
 module.exports = router;

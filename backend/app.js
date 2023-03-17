@@ -47,3 +47,8 @@ mongoose
 app.listen(3000, () => {
     console.log('server is running http://localhost:3000');
 });
+
+// verifyAccount(
+//     'anhnhse150062@fpt.edu.vn',
+//     'https://fap.fpt.edu.vn/Report/ScheduleOfWeek.aspx'
+// );

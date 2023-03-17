@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const jwt = require('jsonwebtoken');
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
+        unique: true,
     },
     passwordHash: {
         type: String,
@@ -23,25 +24,27 @@ const userSchema = new mongoose.Schema({
     },
     street: {
         type: String,
-        default: ''
+        default: '',
     },
     apartment: {
         type: String,
-        default: ''
+        default: '',
     },
-    zip :{
+    zip: {
         type: String,
-        default: ''
+        default: '',
     },
     city: {
         type: String,
-        default: ''
+        default: '',
     },
     country: {
         type: String,
-        default: ''
-    }
-
+        default: '',
+    },
+    isActive: {
+        type: Boolean,
+    },
 });
 
 userSchema.virtual('id').get(function () {
